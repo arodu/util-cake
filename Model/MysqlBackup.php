@@ -1,5 +1,24 @@
 <?php
-App::uses('AppModel', 'Model');
+
+	/**
+	*	Use MysqlBackup from a Controller
+	* app/Controller/AnyController.php
+	*	public function mysql_backup($tables = '*'){
+	*		$this->loadModel('UtilCake.MysqlBackup');
+	*		$result = $this->MysqlBackup->generate($tables);
+	*		$fileName = $this->MysqlBackup->generateName();
+	*
+	*		$this->autoRender = false;
+	*		$this->response->type('text/x-sql');
+	*		$this->response->charset('utf8');
+	*		$this->response->body($result);
+	*		$this->response->download($fileName);
+	*
+	*		return $this->response;
+	*	}
+	*/
+
+App::uses('UtilCakeAppModel', 'Model');
 App::uses('File', 'Utility');
 
 class MysqlBackup extends UtilCakeAppModel {
@@ -17,9 +36,7 @@ class MysqlBackup extends UtilCakeAppModel {
 	public function generate($tables = '*') {
 
 		$return = '';
-		$dataSource = $this->getDataSource();
-		$databaseName = $dataSource->getSchemaName();
-
+		$databaseName = $this->dbName();
 
 		// Do a short header
 		$return .= '-- Database: `' . $databaseName . '`' . "\n";
@@ -76,8 +93,8 @@ class MysqlBackup extends UtilCakeAppModel {
 		return $return;
 	}
 
-	public function generateToFile($destino, $tables = '*'){
-		$file = new File($destino, true);
+	public function generateToFile($destiny, $tables = '*'){
+		$file = new File($destiny, true);
 		$info = $file->info();
 		if(mb_strtolower($info['extension']) === 'sql' ){
 			$file->write( $this->generate($tables) );
@@ -94,8 +111,8 @@ class MysqlBackup extends UtilCakeAppModel {
 		return false;
 	}
 
-	public function restoreToFile($fuente){
-		$file = new File($fuente, false);
+	public function restoreToFile($source){
+		$file = new File($source, false);
 		$info = $file->info();
 		if(mb_strtolower($info['extension']) === 'sql' ){
 			$query = $file->read();
@@ -106,41 +123,17 @@ class MysqlBackup extends UtilCakeAppModel {
 		return false;
 	}
 
-
-
 	public function dbName(){
 		$dataSource = $this->getDataSource();
 		return $dataSource->getSchemaName();
 	}
 
-	public function generateName($uno = null, $dos = null, $date = null){
-		$uno = ( $uno == null ? $this->dbName() : $uno );
-		$dos = ( $dos == null ? 'backup' : $dos );
+	public function generateName($one = null, $two = null, $date = null){
+		// example   one_two_date.sql
+		$one = ( $one == null ? $this->dbName() : $one );
+		$two = ( $two == null ? 'backup' : $two );
 		$date = ( $date == null ? date('YmdHis') : $date );
-		return $uno.'_'.$dos.'_'.$date.'.sql';
+		return $one.'_'.$two.'_'.$date.'.sql';
 	}
-
-
-	/*
-	// Use MysqlBackup from a Controller
-	// app/Controller/AnyController.php
-	public function mysql_backup($tables = '*'){
-		$this->loadModel('UtilCake.MysqlBackup');
-		$result = $this->MysqlBackup->generate($tables);
-		$fileName = $this->MysqlBackup->generateName();
-
-		$this->autoRender = false;
-		$this->response->type('text/x-sql');
-		$this->response->charset('utf8');
-		$this->response->body($result);
-		$this->response->download($fileName);
-
-		return $this->response;
-	}
-	*/
-
-
-
-
 
 }
