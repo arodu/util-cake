@@ -99,16 +99,7 @@ class MysqlBackup extends UtilCakeAppModel {
 		$info = $file->info();
 		if(mb_strtolower($info['extension']) === 'sql' ){
 			$query = $file->read();
-			$result = $this->query($query);
-			//debug($result);
-
-			//$log = $this->getDataSource()->getLog(false, false);
-			//unset($log['log'][0]['query']);
-			//debug($log);
-
-			//exit();
-			//$file->close();
-			if($result){
+			if($this->query($query)){
 				return true;
 			}
 		}
@@ -135,13 +126,13 @@ class MysqlBackup extends UtilCakeAppModel {
 	// app/Controller/AnyController.php
 	public function mysql_backup($tables = '*'){
 		$this->loadModel('UtilCake.MysqlBackup');
-		$return = $this->MysqlBackup->generate($tables);
+		$result = $this->MysqlBackup->generate($tables);
 		$fileName = $this->MysqlBackup->generateName();
 
 		$this->autoRender = false;
 		$this->response->type('text/x-sql');
 		$this->response->charset('utf8');
-		$this->response->body($return);
+		$this->response->body($result);
 		$this->response->download($fileName);
 
 		return $this->response;
