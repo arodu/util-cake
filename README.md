@@ -11,6 +11,11 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
 
 ## Utilities
 
+
+### GeneralHelper
+
+### SoftDeleteBehavior
+
 ### MysqlBackup
   * Generate and Restore Backups of Mysql DataBase
 
