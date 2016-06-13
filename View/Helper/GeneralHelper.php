@@ -243,6 +243,19 @@ class GeneralHelper extends AppHelper {
 		return $out;
 	}
 
+	function progress_bar($value){
+		$color = 'progress-bar-primary';
+		if($value < 100){ $color = 'progress-bar-info'; }
+		if($value < 90){ $color = 'progress-bar-success'; }
+		if($value < 40){ $color = 'progress-bar-warning'; }
+		if($value < 20){ $color = 'progress-bar-danger'; }
+		echo '<div class="progress progress_xs">';
+		echo '<div aria-valuenow="'.$value.'" style="width: '.$value.'%;" class="progress-bar '.$color.'" role="progressbar" data-transitiongoal="'.$value.'">';
+		echo '<small>'.$value.'%</small>';
+		echo '</div>';
+		echo '</div>';
+	}
+
 }
 
 ?>
