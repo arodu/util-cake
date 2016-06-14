@@ -18,7 +18,7 @@ class GeneralHelper extends AppHelper {
 	}
 
 	public function formatDateTime($date = null){
-		return ( $date == null ? date() : strtotime($date) );
+		return ( $date == null ? strtotime(date('c')) : strtotime($date) );
 	}
 
 	public function formatTime($date = null){
@@ -59,6 +59,21 @@ class GeneralHelper extends AppHelper {
 		$strmes = $this->meses['largo'];
 		//debug(date('d m Y h:i a',$date));
 		return date('d',$date).' de '.$strmes[date('n',$date)].' de '.date('Y',$date);
+	}
+
+	function dateCompare($date, $to_compare = null){
+		$to_compare = date('Ymd',$this->formatDateTime($to_compare));
+		$date = date('Ymd',$this->formatDateTime($date));
+
+		if($date == $to_compare){
+			return '=';
+		}else{
+			if($date > $to_compare){
+				return '>';
+			}else{
+				return '<';
+			}
+		}
 	}
 
 	public function niceDateFormatView($date=null){
