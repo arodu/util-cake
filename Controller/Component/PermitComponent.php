@@ -29,26 +29,13 @@ class PermitComponent extends Component {
     parent::__construct($collection, $this->settings);
   }
 
-
-  public function reloadPermits(){
-    $this->Session->write('Permit.fileConfig', $this->loadFileConfig());
-    $this->Session->write('Permit.userProfile', $this->loadUserProfile());
-  }
-
-  public function loadPermits($reload = false){
-    if($this->settings['reload']){
-      $this->reloadPermits();
+  public function user($data = null){
+    $this->loadUserProfile();
+    if($data == null){
+      return $this->userProfile;
+    }else{
+      return ( isset($this->userProfile[$data]) ? $this->userProfile[$data] : false );
     }
-
-    if( !($this->fileConfig = $this->Session->read('Permit.fileConfig') )){
-      $this->fileConfig = $this->loadFileConfig();
-      $this->Session->write('Permit.fileConfig', $this->fileConfig);
-    }
-    if( !($this->userProfile = $this->Session->read('Permit.userProfile') )){
-      $this->userProfile = $this->loadUserProfile();
-      $this->Session->write('Permit.userProfile', $this->userProfile);
-    }
-
   }
 
   public function isAuthorized($current = null, $error = true){
@@ -72,9 +59,10 @@ class PermitComponent extends Component {
       );
     }
 
-    $this->loadPermits();
+    $this->loadUserProfile();
+    $this->loadFileConfig();
 
-    if( $this->settings['userRoot']===true  &&  isset($userProfile['root'])  &&  $userProfile['root']===true ){
+    if($this->settings['userRoot']===true  &&  (isset($this->userProfile['root'])  &&  $this->userProfile['root']===true )){
       // El usuario es "root", y tiene acceso a todo por defecto
       return true;
     }
@@ -108,7 +96,7 @@ class PermitComponent extends Component {
   }
 
   public function getActionPermit($current){
-    $this->loadPermits();
+    $this->loadFileConfig();
     if(isset($this->fileConfig[$current['controller']][$current['action']])){
       $actionPermit = $this->fileConfig[$current['controller']][$current['action']];
     }else{
@@ -121,73 +109,49 @@ class PermitComponent extends Component {
     }
   }
 
-  /*
-  private function __authorized($current = null){
+  public function reloadPermits(){
+    $this->loadFileConfig(true);
+    $this->loadUserProfile(true);
+  }
 
-    if($current == null){
-      $current = array(
-        'controller'=>$this->Controller->params['controller'],
-        'action'=>$this->Controller->params['action']
-      );
-    }
-
-    $userPerfil = $this->recreatePerfil($this->Auth->user('Perfil'));
-
-    $currentPermisos = $this->getPermiso($current);
-
-    //debug($userPerfil);
-    //debug($currentPermisos);
-
-    if( $this->settings['userRoot']===true  &&  isset($userPerfil['root'])  &&  $userPerfil['root']===true ){
-      // Si el usuario es ROOT tiene acceso
-      return true;
-    }
-
-    if($currentPermisos == 'public'){  // Si el acceso el publico, el usuario tiene acceso
-      return true;
-    }elseif(is_array($currentPermisos)){
-      foreach ($currentPermisos as $permiso){  // Si el acceso el publico, el usuario tiene acceso
-        if($permiso == 'public'){
-          return true;
-        }
-        if(isset($userPerfil[$permiso]) && $userPerfil[$permiso]){ // Si el usuario tiene permiso , el usuario tiene acceso
-          return true;
-        }
+  private function loadFileConfig($reload = false){
+    if($this->settings['reload'] or $reload){
+      Configure::load($this->settings['config']['file']);
+  		$fileConfig = Configure::read($this->settings['config']['name']); // Leer Arreglo de Permisos
+      $this->Session->write('Permit.fileConfig', $fileConfig);
+    }else{
+      if( !($fileConfig = $this->Session->read('Permit.fileConfig')) ){
+        return $this->loadFileConfig(true);
       }
     }
-    return false;
-  }
-  */
-
-
-
-  private function loadFileConfig(){
-		Configure::load($this->settings['config']['file']);
-		$fileConfig = Configure::read($this->settings['config']['name']); // Leer Arreglo de Permisos
+    $this->fileConfig = $fileConfig;
     return $fileConfig;
 	}
 
-  private function loadUserProfile(){
-    App::uses($this->settings['userModel'], 'Model');
-    $userModel = new $this->settings['userModel']();
-    $userModel->Behaviors->load('Containable');
+  private function loadUserProfile($reload = false){
+    if($this->settings['reload'] or $reload){
+      App::uses($this->settings['userModel'], 'Model');
+      $userModel = new $this->settings['userModel']();
+      $userModel->Behaviors->load('Containable');
 
-    App::uses($this->settings['profileModel'], 'Model');
-    $profileModel = new $this->settings['profileModel']();
+      App::uses($this->settings['profileModel'], 'Model');
+      $profileModel = new $this->settings['profileModel']();
 
-    $userProfile = $userModel->find('first',array(
-      'conditions'=>array($userModel->alias.'.id' => $this->Auth->user('id')),
-      'contain'=>array(
-        $profileModel->alias,
-      ),
-    ));
-
-    if(isset($userProfile[$profileModel->alias])){
-      return $this->recreateProfile($userProfile[$profileModel->alias]);
+      $user = $userModel->find('first',array(
+        'conditions'=>array($userModel->alias.'.id' => $this->Auth->user('id')),
+        'contain'=>array(
+          $profileModel->alias,
+        ),
+      ));
+      $userProfile = ( isset($user[$profileModel->alias]) ? $this->recreateProfile($user[$profileModel->alias]) : null );
+      $this->Session->write('Permit.userProfile', $userProfile);
     }else{
-      return null;
+      if( !($userProfile = $this->Session->read('Permit.userProfile')) ){
+        return $this->loadUserProfile(true);
+      }
     }
-
+    $this->userProfile = $userProfile;
+    return $userProfile;
   }
 
   public function recreateProfile($arrayProfile = array()){
@@ -202,39 +166,5 @@ class PermitComponent extends Component {
   public function error(){
     throw new ForbiddenException($this->settings['errorMessage']);
   }
-
-
-
-  /*
-  public function get_users_profiles(){
-    App::uses($this->settings['UserModel'], 'Model');
-    $userModel = new $this->settings['UserModel']();
-    $userModel->Behaviors->load('Containable');
-
-    App::uses($this->settings['profileModel'], 'Model');
-    $profileModel = new $this->settings['profileModel']();
-    $profileModel->Behaviors->load('Containable');
-
-    $user = $userModel->find('first',array(
-      'conditions'=>array($userModel->alias.'.id' => $this->Auth->user('id')),
-      'contain'=>array(
-        $profileModel->alias,
-      ),
-    ));
-
-    if($this->settings['profile_type'] == 'single'){
-      debug($user);
-    }elseif($this->settings['profile_type'] == 'double'){
-      debug($user);
-    }else{
-      throw new ForbiddenException($this->settings['errorMessage']);
-    }
-
-  }
-
-
-
-  */
-
 
 }
