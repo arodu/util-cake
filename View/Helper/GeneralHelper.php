@@ -18,7 +18,7 @@ class GeneralHelper extends AppHelper {
 	}
 
 	public function formatDateTime($date = null){
-		return ( $date == null ? date() : strtotime($date) );
+		return ( $date == null ? strtotime(date('c')) : strtotime($date) );
 	}
 
 	public function formatTime($date = null){
@@ -59,6 +59,21 @@ class GeneralHelper extends AppHelper {
 		$strmes = $this->meses['largo'];
 		//debug(date('d m Y h:i a',$date));
 		return date('d',$date).' de '.$strmes[date('n',$date)].' de '.date('Y',$date);
+	}
+
+	function dateCompare($date, $to_compare = null){
+		$to_compare = date('Ymd',$this->formatDateTime($to_compare));
+		$date = date('Ymd',$this->formatDateTime($date));
+
+		if($date == $to_compare){
+			return '=';
+		}else{
+			if($date > $to_compare){
+				return '>';
+			}else{
+				return '<';
+			}
+		}
 	}
 
 	public function niceDateFormatView($date=null){
@@ -241,6 +256,19 @@ class GeneralHelper extends AppHelper {
 			}
 	  }
 		return $out;
+	}
+
+	function progress_bar($value){
+		$color = 'progress-bar-primary';
+		if($value < 100){ $color = 'progress-bar-info'; }
+		if($value < 90){ $color = 'progress-bar-success'; }
+		if($value < 40){ $color = 'progress-bar-warning'; }
+		if($value < 20){ $color = 'progress-bar-danger'; }
+		echo '<div class="progress progress_xs">';
+		echo '<div aria-valuenow="'.$value.'" style="width: '.$value.'%;" class="progress-bar '.$color.'" role="progressbar" data-transitiongoal="'.$value.'">';
+		echo '<small>'.$value.'%</small>';
+		echo '</div>';
+		echo '</div>';
 	}
 
 }
