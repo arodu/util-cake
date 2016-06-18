@@ -1,70 +1,80 @@
 <?php
 class GeneralHelper extends AppHelper {
 
-	//public $helpers = array('Time');
-
 	public $helpers = array('Html');
 
-	private $meses = array(
-			'corto' => array('1'=>'Ene','2'=>'Feb','3'=>'Mar','4'=>'Abr','5'=>'May','6'=>'Jun','7'=>'Jul','8'=>'Ago','9'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dic'),
-			'largo' => array('1'=>'Enero','2'=>'Febrero','3'=>'Marzo','4'=>'Abril','5'=>'Mayo','6'=>'Junio','7'=>'Julio','8'=>'Agosto','9'=>'Septiembre','10'=>'Octubre','11'=>'Noviembre','12'=>'Diciembre'),
-		);
-	private $dias = array('1'=>'Lunes','2'=>'Martes','3'=>'Miercoles','4'=>'Jueves','5'=>'Viernes','6'=>'Sabado','7'=>'Domingo');
+	private $months = array(
+		'short' => array('1'=>'Ene','2'=>'Feb','3'=>'Mar','4'=>'Abr','5'=>'May','6'=>'Jun','7'=>'Jul','8'=>'Ago','9'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dic'),
+		'large' => array('1'=>'Enero','2'=>'Febrero','3'=>'Marzo','4'=>'Abril','5'=>'Mayo','6'=>'Junio','7'=>'Julio','8'=>'Agosto','9'=>'Septiembre','10'=>'Octubre','11'=>'Noviembre','12'=>'Diciembre'),
+	);
+	private $days = array(
+		'short' => array('1'=>'Lu','2'=>'Ma','3'=>'Mi','4'=>'Ju','5'=>'Vi','6'=>'Sa','7'=>'Do'),
+		'large' => array('1'=>'Lunes','2'=>'Martes','3'=>'Miercoles','4'=>'Jueves','5'=>'Viernes','6'=>'Sabado','7'=>'Domingo'),
+	);
 
-
+	private $niceFormat = array(
+		'today' => 'Hoy',
+		'yesterday' => 'Ayer',
+		'tomorrow' => 'Mañana',
+	);
 
 	public function __construct(View $View, $settings = array()) {
 		parent::__construct($View, $settings);
 	}
 
-	public function formatDateTime($date = null){
-		return ( $date == null ? strtotime(date('c')) : strtotime($date) );
+	private function _formatDateTime($datetime = null){
+		return ( $datetime == null ? strtotime(date('c')) : strtotime($datetime) );
 	}
 
-	public function formatTime($date = null){
-		return date("H:i:s", $this->formatDateTime($date));
+	public function formatDate($format = null, $date = null){
+		$date = $this->_formatDateTime($date);
+		switch ($format) {
+			case 'print':
+					$out = date('d/m/Y',$date);
+				break;
+
+			case 'complete':
+					$out = date('d',$date).' de '.$this->$months['large'][date('n',$date)].' de '.date('Y',$date);
+				break;
+
+			case 'view':
+			default:
+					$out = $this->months['short'][date('n',$date)].' '.date('d Y',$date);
+				break;
+		}
+		return $out;
 	}
 
-	public function dateTimeFormatView($date=null){
-		$date = $this->formatDateTime($date);
-		$strmes = $this->meses['corto'];
-		//debug(date('d m Y h:i a',$date));
-		return $strmes[date('n',$date)].' '.date('d Y, h:i a ',$date);
+	public function formatDateTime($format = null, $datetime = null){
+		$datetime = $this->_formatDateTime($datetime);
+		switch ($format) {
+			case 'print':
+					$out = date('d/m/Y h:ia',$datetime);
+				break;
+
+			case 'view':
+			default:
+					$out = $this->months['short'][date('n',$datetime)].' '.date('d Y, h:i a ',$datetime);
+				break;
+		}
+		return $out;
 	}
 
-	public function timeFormatView($date=null){
-		$date = $this->formatDateTime($date);
-		return date('h:i a ',$date);
-	}
-
-	public function dateTimeFormatPrint($date=null){
-		$date = $this->formatDateTime($date);
-		return date('d/m/Y h:ia',$date);
-	}
-
-	public function dateFormatPrint($date=null){
-		$date = $this->formatDateTime($date);
-		return date('d/m/Y',$date);
-	}
-
-	public function dateFormatView($date=null){
-		$date = $this->formatDateTime($date);
-		$strmes = $this->meses['corto'];
-		//debug(date('d m Y h:i a',$date));
-		return $strmes[date('n',$date)].' '.date('d Y',$date);
-	}
-
-	public function dateFormatComplete($date=null){
-		$date = $this->formatDateTime($date);
-		$strmes = $this->meses['largo'];
-		//debug(date('d m Y h:i a',$date));
-		return date('d',$date).' de '.$strmes[date('n',$date)].' de '.date('Y',$date);
+	public function formatTime($format = null, $time = null){
+		$time = $this->_formatDateTime($time);
+		switch ($format) {
+			case 'print':
+			case 'view':
+			default:
+					$out = date('h:i a',$date);
+				break;
+		}
+		return $out;
 	}
 
 	function dateCompare($date, $to_compare = null){
-		$to_compare = date('Ymd',$this->formatDateTime($to_compare));
-		$date = date('Ymd',$this->formatDateTime($date));
-
+		$to_compare = date('Ymd',$this->_formatDateTime($to_compare));
+		$date = date('Ymd',$this->_formatDateTime($date));
 		if($date == $to_compare){
 			return '=';
 		}else{
@@ -75,6 +85,9 @@ class GeneralHelper extends AppHelper {
 			}
 		}
 	}
+
+	/*********************************************************************************************************/
+
 
 	public function niceDateFormatView($date=null){
 		$dateF = $this->formatDateTime($date);
@@ -87,7 +100,7 @@ class GeneralHelper extends AppHelper {
 			return "Ayer";
 
 		}elseif( date('Ymd', $dateF) >= date('Ymd', strtotime('-6 days')) &&  date('Ymd', $dateF) <= date('Ymd', strtotime('now'))){ // Esta Semana
-			return $this->dias[ date('N',$dateF) ];
+			return $this->days[ date('N',$dateF) ];
 
 		}else{
 			return $strmes[date('n',$dateF)].' 	'.date('d Y',$dateF);
@@ -96,6 +109,7 @@ class GeneralHelper extends AppHelper {
 
 	public function byteSize($bytes){
 		$size = $bytes;
+		$ext = ' Bytes';
 		if($bytes > 1024000000){
 			$size = round($size / 1024000000, 1);
 			$ext = 'GB';
@@ -105,9 +119,8 @@ class GeneralHelper extends AppHelper {
 		}else if($bytes > 1024){
 			$size = round($size / 1024, 1);
 			$ext = ' KB';
-		}else{
-			$ext = ' Bytes';
 		}
+
 		return $size.$ext;
 	}
 
@@ -158,49 +171,6 @@ class GeneralHelper extends AppHelper {
 
 	}
 
-
-	public function htmlTrim($pinfo) {
-		/* $cortar = array('\n','\r','\t',' ','	','&nbsp;','<br />','<br>','<br/>');
-
-		$lcut = count($cortar) - 1;
-		$ucut = "0";
-		$rcut = "0";
-		$wiy = true;
-		$so = false;
-
-		while ($wiy) {
-
-			if ($so) {
-				$ucut = "0";
-				$rcut = "0";
-				$so = false;
-			}
-
-			if (!$cortar[$ucut]) {
-				$so = true;
-			} else {
-				$pinfo = rtrim($pinfo);
-				$bpinfol = strlen($pinfo);
-				$tcut = $cortar[$ucut];
-				$pinfo = rtrim($pinfo,"$tcut");
-				$pinfol = strlen($pinfo);
-
-				if ($bpinfol == $pinfol) {
-					$rcut++;
-					if ($rcut == $lcut) {
-						$wiy = false;
-					}
-					$ucut++;
-				} else {
-					$so = true;
-				}
-			}
-		} /**/
-		return $pinfo;
-	}
-
-
-
 	public function soloLetras($texto){
 		$palabras = explode(' ',$texto);
 		$out = '';
@@ -210,6 +180,7 @@ class GeneralHelper extends AppHelper {
 		return $out;
 	}
 
+	/*
 	public function userFoto($tipo_foto = null, $id = null, $updated_foto = null){
 
 		return false;
@@ -237,6 +208,7 @@ class GeneralHelper extends AppHelper {
 			return $imageBaseUrl.$file;
 		}
 	}
+  */
 
 	function arrayYears( $options = array() ){
 	  $out = array();
