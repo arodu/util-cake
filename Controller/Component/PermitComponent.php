@@ -21,16 +21,16 @@ class PermitComponent extends Component {
 
   public function __construct(ComponentCollection $collection, $settings = array()) {
     $this->settings = array_replace_recursive($this->settings, (array)$settings);
-    $this->Controller = $collection->getController();
+    $this->controller = $collection->getController();
     $this->settings['userRoot'] = ( Configure::read('debug') > 0 ? true : $this->settings['userRoot'] );
 
-    $this->Controller->helpers[] = 'UtilCake.Permit'; // <-- Cargar helper UtilCake.Permit
+    $this->controller->helpers[] = 'UtilCake.Permit'; // <-- Cargar helper UtilCake.Permit
 
     parent::__construct($collection, $this->settings);
   }
 
   public function user($data = null){
-    $this->loadUserProfile();
+    $this->userProfile = $this->loadUserProfile();
     if($data == null){
       return $this->userProfile;
     }else{
@@ -38,29 +38,33 @@ class PermitComponent extends Component {
     }
   }
 
-  public function isAuthorized($current = null, $error = true){
+  public function isAuthorized($current = null, $showError = true){
     $authorized = $this->_authorized($current);
-    if($error){
-      return ( $authorized ? true : $this->error() );
-    }else{
-      return $authorized;
+    if($showError){
+      if($this->Auth->user('id')){
+        return ( $authorized ? true : $this->error() );
+      }else{
+        //$this->Flash->error($this->Auth->authError);
+        //return $this->controller->redirect($this->Auth->loginAction);
+      }
     }
+    return $authorized;
   }
 
   public function hasPermission($current = null){
     return $this->_authorized($current);
   }
 
-  private function _authorized($current = null){
+  protected function _authorized($current = null){
     if($current == null){
       $current = array(
-        'controller'=>$this->Controller->params['controller'],
-        'action'=>$this->Controller->params['action']
+        'controller'=>$this->controller->params['controller'],
+        'action'=>$this->controller->params['action']
       );
     }
 
-    $this->loadUserProfile();
-    $this->loadFileConfig();
+    $this->userProfile = $this->loadUserProfile();
+    $this->fileConfig = $this->loadFileConfig();
 
     if($this->settings['userRoot']===true  &&  (isset($this->userProfile['root'])  &&  $this->userProfile['root']===true )){
       // El usuario es "root", y tiene acceso a todo por defecto
@@ -70,7 +74,7 @@ class PermitComponent extends Component {
     if($actionPermit = $this->getActionPermit($current)){
       if($actionPermit == 'public' or in_array('public', (array)$actionPermit)){
         // El permiso de la accion es "public", y cualquiera tiene acceso
-        $this->Controller->Auth->allow($current['action']);
+        $this->controller->Auth->allow($current['action']);
         return true;
       }
 
@@ -91,12 +95,11 @@ class PermitComponent extends Component {
         }
       }
     }
-
     return false;
   }
 
   public function getActionPermit($current){
-    $this->loadFileConfig();
+    $this->fileConfig = $this->loadFileConfig();
     if(isset($this->fileConfig[$current['controller']][$current['action']])){
       $actionPermit = $this->fileConfig[$current['controller']][$current['action']];
     }else{
@@ -110,7 +113,7 @@ class PermitComponent extends Component {
   }
 
   public function reloadPermits(){
-    $this->loadFileConfig(true);
+    $this->fileConfig = $this->loadFileConfig(true);
     $this->loadUserProfile(true);
   }
 
@@ -124,11 +127,13 @@ class PermitComponent extends Component {
         return $this->loadFileConfig(true);
       }
     }
-    $this->fileConfig = $fileConfig;
     return $fileConfig;
 	}
 
   private function loadUserProfile($reload = false){
+
+    if(!$this->Auth->user()) return array();
+
     if($this->settings['reload'] or $reload){
       App::uses($this->settings['userModel'], 'Model');
       $userModel = new $this->settings['userModel']();
@@ -150,7 +155,6 @@ class PermitComponent extends Component {
         return $this->loadUserProfile(true);
       }
     }
-    $this->userProfile = $userProfile;
     return $userProfile;
   }
 

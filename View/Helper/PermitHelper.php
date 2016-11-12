@@ -63,6 +63,7 @@ class PermitHelper extends AppHelper {
 	}
 
   public function hasPermission($profiles = array()){
+  		$this->userProfile = $this->component->user();
 		foreach ($profiles as $profile) {
 			if(isset($this->userProfile[$profile]) and $this->userProfile[$profile]){
 				return true;
