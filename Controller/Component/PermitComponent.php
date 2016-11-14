@@ -148,7 +148,14 @@ class PermitComponent extends Component {
           $profileModel->alias,
         ),
       ));
-      $userProfile = ( isset($user[$profileModel->alias]) ? $this->recreateProfile($user[$profileModel->alias]) : null );
+      
+      if(isset($userModel->belongsTo[$profileModel->alias]) && !empty($userModel->belongsTo[$profileModel->alias])){
+        $arrayProfile = array($user[$profileModel->alias]);
+      }else{
+        $arrayProfile = $user[$profileModel->alias];
+      }
+      
+      $userProfile = ( isset($user[$profileModel->alias]) ? $this->recreateProfile($arrayProfile) : null );
       $this->Session->write('Permit.userProfile', $userProfile);
     }else{
       if( !($userProfile = $this->Session->read('Permit.userProfile')) ){
