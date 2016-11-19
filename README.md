@@ -10,6 +10,17 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
 
 ### GeneralHelper
 
+### bsFormHelper
+  * Helper to bootstrap forms
+  
+  * How to use
+  ```php
+  // app/Controller/AnyController.php
+  public $helpers = array(
+    'Form'=>array('className'=>'UtilCake.bsForm')
+  );
+  ```
+
 ### SoftDeleteBehavior
 
 ### MysqlBackup
