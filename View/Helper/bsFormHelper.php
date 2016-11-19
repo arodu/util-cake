@@ -109,7 +109,6 @@ class bsFormHelper extends FormHelper {
 	}
 
 	public function bsStatic( $fieldName, $options = array()){
-
 		echo '<div class="form-group">
 	    <label class="col-sm-2 control-label">Email</label>
 	    <div class="col-sm-10">
@@ -118,19 +117,15 @@ class bsFormHelper extends FormHelper {
 	  </div>';
 	}
 
-
 	protected function _getTextLabel($fieldName, $options){
-
 		if( isset($options['textLabel']) && $options['textLabel'] ){
 			return $options['textLabel'];
 		}
 
-		if(isset($options['label'])){
-			if(is_array($options['label'])){
-				$textLabel = $options['label']['text'];
-			}else{
-				$textLabel = $options['label'];
-			}
+    if(isset($options['label']['text'])){
+      $textLabel = $options['label']['text'];
+    }elseif(isset($options['label']) && !is_array($options['label'])){
+      $textLabel = $options['label'];
 		}else{
 			if (strpos($fieldName, '.') !== false) {
 				$fieldElements = explode('.', $fieldName);
@@ -168,7 +163,5 @@ class bsFormHelper extends FormHelper {
 
 		return parent::input($fieldName, $options);
 	}
-
-
 
 }
