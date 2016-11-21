@@ -1,32 +1,188 @@
 <?php
+  /**
+   * bsFormHelper - Bootstrap Form Helper
+   *
+   */
+
 App::uses('FormHelper', 'View/Helper');
 class bsFormHelper extends FormHelper {
+  
+  public $form_type = 'default'; // default, horizontal, inline
+  
+  public $settings = array(
+    'col-left'=>'col-sm-2',
+    'col-right'=>'col-sm-10',
+  );
+  
+  public function create($model = null, $options = array()){
+    $form_class = (isset($options['class']) ? $options['class'] : 'form-default');
+    if(isset($options['inputDefaults']) && $options['inputDefaults']){
+      $options['inputDefaults'] += $this->_selectFormType($form_class);
+    }else{
+      $options['inputDefaults'] = $this->_selectFormType($form_class);
+    }
+    return parent::create($model, $options);
+  }
+  
+  public function setColLeft($left = 'col-sm-2'){
+    $this->settings['col-left'] = $left;
+  }
+  
+  public function setColRight($right = 'col-sm-10'){
+    $this->settings['col-right'] = $right;
+  }
+  
+  protected function _selectFormType($form_class = ''){
+    
+    $inputDefaults = array(
+      'label' => array('class'=>'control-label'),
+      'class'=>'form-control',
+      'div'=>array('class'=>'form-group'),
+      'error' => array('attributes' => array('wrap' => 'span', 'class' => 'help-block')),
+    );
+    
+    if(strpos($form_class, 'form-horizontal')!==false){
+      $this->form_type = 'horizontal';
+      
+      $inputDefaults = array(
+        'format' => array('before', 'label', 'between', 'input', 'error', 'after'),
+        'label' => array('class'=>$this->settings['col-left'].' control-label'),
+        'div' => array('class'=>'form-group'),
+        'between' => '<div class="'.$this->settings['col-right'].'">',
+        'after' => '</div>',
+        'class' => 'form-control',
+        'error' => array('attributes' => array('wrap' => 'span', 'class' => 'help-block')),
+      );
+      
+    }elseif(strpos($form_class, 'form-inline')!==false){
+      $this->form_type = 'inline';
+    }else{
+      $this->form_type = 'default';
+    }
+    
+    return $inputDefaults;
+  }
+  
+  public function input($fieldName, $options = array()) {
+    $this->setEntity($fieldName);
+    $options = $this->_parseOptions($options);
 
-	public function create($model = null, $options = array()) {
-		if(isset($options['inputDefaults']) && $options['inputDefaults']){
-			$options['inputDefaults'] += array( 'class'=>'form-control', 'div' => array('class'=>'form-group') );
-		}else{
-			$options['inputDefaults'] = array( 'class'=>'form-control', 'div' => array('class'=>'form-group') );
-		}
-		return parent::create($model, $options);
-	}
+    switch ($options['type']) {
+      case 'checkbox':
+        $options['class'] = '';
+        if($this->form_type != 'horizontal'){
+          $options['style'] = 'margin-right:6px;';
+          $options['format'] = array('before', 'input', 'between', 'label', 'error', 'after');
+        }
+      break;
+      
+      case 'time':
+      case 'date':
+      case 'datetime':
+        $options['separator'] = '&nbsp;';
+        $options['style'] = array('display:inline-block;width:auto;');
+      break;
+    }
+    
+    return parent::input($fieldName, $options);
+  }
+  
+  public function dateTime($fieldName, $dateFormat = 'DMY', $timeFormat = '12', $attributes = array()){
+    $dateTime = parent::dateTime($fieldName, $dateFormat, $timeFormat, $attributes);
+    $inter_div = ( isset($attributes['inter_div']) ? $attributes['inter_div'] : '');
+    
+    if($this->form_type == 'inline'){
+      return $dateTime;
+    }elseif($this->form_type == 'horizontal'){
+      return $this->Html->tag('div', $dateTime, $inter_div);
+    }else{
+      return $this->Html->tag('div', $dateTime, $inter_div);
+    }
+  }
+  
+  public function static($fieldName, $options){
+    $options = array_merge($options, array('class'=>'form-control-static'));
+    $options = $this->_initInputField($fieldName, $options);
+    return $this->Html->tag('p', $options['value'], array('id'=>$options['id'], 'class'=>$options['class']));
+  }
+  
+  
+  public function bsCheckbox( $fieldName, $options = array() ) {
 
-	public function submit($caption = null, $options = array()) {
-		$options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-primary' );
-		$options['div'] = ( isset($options['div']) && $options['div'] ? $options['div'] : false );
-		return parent::submit($caption, $options);
-	}
+    $options['type'] = 'checkbox';
 
-	public function reset($caption = null, $options = array()) {
-		$options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-default' );
-		return parent::reset($caption, $options);
-	}
+    $options = $this->_parseOptions($options);
+    $textLabel = $this->_getTextLabel($fieldName,$options);
 
-	public function button($title, $options = array()) {
-		$options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-default' );
-		return parent::button($title, $options);
-	}
+    $divOptions = $this->_divOptions($options);
+    unset($options['div']);
 
+    $ck_options = array(
+        'div' => array('tag'=>'label','class'=>false),
+        'label' => false,
+        'type' => 'checkbox',
+        'between' => $options['between'].$textLabel,
+        'class'=>'',
+      );
+
+    $options = array_merge($options,$ck_options);
+
+    $checkbox = parent::input($fieldName, $options);
+
+    if($divOptions){
+      $tag = $divOptions['tag'];
+      unset($divOptions['tag']);
+      $divOptions = $this->addClass($divOptions, $options['type']);
+      return $this->Html->tag($tag, $checkbox, $divOptions);
+    }
+    return $checkbox;
+  }
+  
+  
+  protected function _getTextLabel($fieldName, $options){
+    if( isset($options['textLabel']) && $options['textLabel'] ){
+      return $options['textLabel'];
+    }
+
+    if(isset($options['label']['text'])){
+      $textLabel = $options['label']['text'];
+    }elseif(isset($options['label']) && !is_array($options['label'])){
+      $textLabel = $options['label'];
+    }else{
+      if (strpos($fieldName, '.') !== false) {
+        $fieldElements = explode('.', $fieldName);
+        $text = array_pop($fieldElements);
+      } else {
+        $text = $fieldName;
+      }
+      if (substr($text, -3) === '_id') {
+        $text = substr($text, 0, -3);
+      }
+      $textLabel = __(Inflector::humanize(Inflector::underscore($text)));
+    }
+    $textLabel = ( $textLabel === false ? '' : $textLabel );
+
+    return $textLabel;
+  }
+  
+  public function submit($caption = null, $options = array()) {
+    $options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-primary' );
+    $options['div'] = ( isset($options['div']) && $options['div'] ? $options['div'] : false );
+    return parent::submit($caption, $options);
+  }
+  
+  public function reset($caption = null, $options = array()) {
+    $options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-default' );
+    return parent::reset($caption, $options);
+  }
+  
+  public function button($title, $options = array()) {
+    $options['class'] = ( isset($options['class']) && $options['class'] ? $options['class'] : 'btn btn-default' );
+    return parent::button($title, $options);
+  }
+
+
+  /*
 	public function selectMultilevel($fieldName, $options = array() ) {
 
 		if (func_num_args() > 2) {
@@ -75,93 +231,6 @@ class bsFormHelper extends FormHelper {
 		}
 		return implode('', $out);
 	}
-
-	public function bsCheckbox( $fieldName, $options = array() ) {
-
-		$options['type'] = 'checkbox';
-
-		$options = $this->_parseOptions($options);
-		$textLabel = $this->_getTextLabel($fieldName,$options);
-
-		$divOptions = $this->_divOptions($options);
-		unset($options['div']);
-
-		$ck_options = array(
-				'div' => array('tag'=>'label','class'=>false),
-				'label' => false,
-				'type' => 'checkbox',
-				'between' => $options['between'].$textLabel,
-				'class'=>'',
-			);
-
-		$options = array_merge($options,$ck_options);
-
-		$checkbox = parent::input($fieldName, $options);
-
-		if($divOptions){
-			$tag = $divOptions['tag'];
-			unset($divOptions['tag']);
-			$divOptions = $this->addClass($divOptions, $options['type']);
-			return $this->Html->tag($tag, $checkbox, $divOptions);
-		}
-
-		return $checkbox;
-	}
-
-	public function bsStatic( $fieldName, $options = array()){
-		echo '<div class="form-group">
-	    <label class="col-sm-2 control-label">Email</label>
-	    <div class="col-sm-10">
-	      <p class="form-control-static">email@example.com</p>
-	    </div>
-	  </div>';
-	}
-
-	protected function _getTextLabel($fieldName, $options){
-		if( isset($options['textLabel']) && $options['textLabel'] ){
-			return $options['textLabel'];
-		}
-
-    if(isset($options['label']['text'])){
-      $textLabel = $options['label']['text'];
-    }elseif(isset($options['label']) && !is_array($options['label'])){
-      $textLabel = $options['label'];
-		}else{
-			if (strpos($fieldName, '.') !== false) {
-				$fieldElements = explode('.', $fieldName);
-				$text = array_pop($fieldElements);
-			} else {
-				$text = $fieldName;
-			}
-			if (substr($text, -3) === '_id') {
-				$text = substr($text, 0, -3);
-			}
-			$textLabel = __(Inflector::humanize(Inflector::underscore($text)));
-		}
-		$textLabel = ( $textLabel === false ? '' : $textLabel );
-
-		return $textLabel;
-	}
-
-	public function input($fieldName, $options = array()) {
-		$this->setEntity($fieldName);
-		$options = $this->_parseOptions($options);
-
-		switch ($options['type']) {
-			case 'checkbox':
-			case 'bsCheckbox':
-					return $this->bsCheckbox($fieldName, $options);
-					break;
-
-			case 'static':
-					return $this->bsStatic($fieldName, $options);
-					break;
-
-			case 'datetime':
-					break;
-		}
-
-		return parent::input($fieldName, $options);
-	}
+ */
 
 }
