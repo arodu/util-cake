@@ -13,7 +13,7 @@ class PermitComponent extends Component {
     
     'defaultResponse' => false,   // false,  loged,  public
     'userRoot' => false,
-    'reload' => false,
+    'reload' => false, 
     'errorMessage' => '',
   );
   
@@ -24,7 +24,7 @@ class PermitComponent extends Component {
     $this->controller = $collection->getController();
     $this->settings['userRoot'] = ( Configure::read('debug') > 0 ? true : $this->settings['userRoot'] );
     
-    $this->controller->helpers[] = 'UtilCake.Permit'; // <-- Cargar helper UtilCake.Permit
+    $this->controller->helpers['UtilCake.Permit'] = array('component_settings'=>$this->settings); // <-- Cargar helper UtilCake.Permit
     
     parent::__construct($collection, $this->settings);
   }
