@@ -24,21 +24,21 @@ class PermitHelper extends AppHelper {
 
   public function link($title, $url = array(), $options = array(), $confirmMessage = false) {
     $url = $this->rebuildUrl($url);
-    if($this->component->isAuthorized($url,false)){
+    if($this->component->hasPermission($url)){
       if(isset($options['tag']) and $options['tag']){
         $tag = $this->create_tag($options['tag']);
         unset($options['tag']);
         return $this->Html->tag(
-        $tag['name'],
-        $this->Html->link($title, $url, $options, $confirmMessage),
-        array($tag['options'])
-      );
+          $tag['name'],
+          $this->Html->link($title, $url, $options, $confirmMessage),
+          array($tag['options'])
+        );
+      }else{
+        return $this->Html->link($title, $url, $options, $confirmMessage);
+      }
     }else{
-      return $this->Html->link($title, $url, $options, $confirmMessage);
+      return $this->settings['returnDeny'];
     }
-  }else{
-    return $this->settings['returnDeny'];
-  }
   }
 
   private function create_tag($option_tag){
@@ -55,7 +55,7 @@ class PermitHelper extends AppHelper {
 
   public function postLink($title, $url = null, $options = array(), $confirmMessage = false) {
     $url = $this->rebuildUrl($url);
-    if($this->component->isAuthorized($url,false)){
+    if($this->component->hasPermission($url)){
       return $this->Form->postLink($title, $url, $options, $confirmMessage);
     }else{
       return $this->settings['returnDeny'];

@@ -63,8 +63,25 @@ class bsFormHelper extends FormHelper {
     return $inputDefaults;
   }
   
+  protected function fixOptions($options){
+    $out = array();
+    if(isset($options['label'])){
+      if(!is_array($options['label'])){
+        $options['label'] = array('text'=>$options['label']);
+      }
+      $out['label'] = array_merge_recursive($this->_inputDefaults['label'], $options['label']);
+    }
+    
+    return array_merge($options, $out);
+  }
+  
+  protected function mergeClass($class_1, $class_2){
+    return implode(' ', array_unique(array_merge(explode(' ', $class_1), explode(' ', $class_2))));
+  }
+  
   public function input($fieldName, $options = array()) {
     $this->setEntity($fieldName);
+    $options = $this->fixOptions($options);
     $options = $this->_parseOptions($options);
 
     switch ($options['type']) {
@@ -100,7 +117,7 @@ class bsFormHelper extends FormHelper {
     }
   }
   
-  public function static($fieldName, $options){
+  public function static($fieldName, $options){ 
     $options = array_merge($options, array('class'=>'form-control-static'));
     $options = $this->_initInputField($fieldName, $options);
     return $this->Html->tag('p', $options['value'], array('id'=>$options['id'], 'class'=>$options['class']));

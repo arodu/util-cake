@@ -39,7 +39,7 @@ class PermitComponent extends Component {
   }
   
   public function isAuthorized($current = null, $showError = true){
-    $authorized = $this->_authorized($current);
+    $authorized = $this->_authorized($current, $showError);
     if($showError){
       if($this->Auth->user('id')){
         return ( $authorized ? true : $this->error() );
@@ -52,10 +52,10 @@ class PermitComponent extends Component {
   }
   
   public function hasPermission($current = null){
-    return $this->_authorized($current);
+    return $this->_authorized($current, false);
   }
   
-  protected function _authorized($current = null){
+  protected function _authorized($current = null, $set_allow = true){
     if($current == null){
       $current = array(
         'controller'=>$this->controller->params['controller'],
@@ -74,7 +74,9 @@ class PermitComponent extends Component {
     if($actionPermit = $this->getActionPermit($current)){
       if($actionPermit == 'public' or in_array('public', (array)$actionPermit)){
         // El permiso de la accion es "public", y cualquiera tiene acceso
-        $this->controller->Auth->allow($current['action']);
+        if($set_allow){
+          $this->controller->Auth->allow($current['action']);
+        }
         return true;
       }
       
