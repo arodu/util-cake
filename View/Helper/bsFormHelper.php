@@ -33,7 +33,6 @@ class bsFormHelper extends FormHelper {
   }
   
   protected function _selectFormType($form_class = ''){
-    
     $inputDefaults = array(
       'label' => array('class'=>'control-label'),
       'class'=>'form-control',
