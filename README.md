@@ -46,6 +46,7 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
     
 ### AppExtendModel
   * News validations rules to models
+  
   * How to use
     ```php
     App::uses('AppExtendModel', 'UtilCake.Model');
@@ -53,13 +54,16 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
       ...
     }
     ```
+    
   * Validations Rules
+  
     * dateRange: Min and Max dates
         ```php
         'notFuture' => array(
           'rule' => array('dateRange',
            array('min'=>'2010-01-01', 'max'=>'today')),
         ```
+        
     * equalToField: to check if two fields are equals
         ```php
         'email_confirm' => array(
@@ -69,6 +73,7 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
           ),
         ),
         ```
+        
     * passwordCheck: to check if a field is equal to password_field
         ```php
         'password_check' => array(
