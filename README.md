@@ -47,34 +47,34 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
 ### AppExtendModel
   * News validations rules to models
   * How to use
-  ```php
-  App::uses('AppExtendModel', 'UtilCake.Model');
-  class MyModel extends AppExtendModel {
-    ...
-  }
-  ```
+    ```php
+    App::uses('AppExtendModel', 'UtilCake.Model');
+    class MyModel extends AppExtendModel {
+      ...
+    }
+    ```
   * Validations Rules
     * dateRange: Min and Max dates
-      ```php
-      'notFuture' => array(
-        'rule' => array('dateRange',
-         array('min'=>'2010-01-01', 'max'=>'today')),
-      ```
+        ```php
+        'notFuture' => array(
+          'rule' => array('dateRange',
+           array('min'=>'2010-01-01', 'max'=>'today')),
+        ```
     * equalToField: to check if two fields are equals
-      ```php
-      'email_confirm' => array(
-        'equalToField' => array(
-          'rule' => array('equalToField','email'),
-          //'rule' => array('equalToField',<< field to check >>),
+        ```php
+        'email_confirm' => array(
+          'equalToField' => array(
+            'rule' => array('equalToField','email'),
+            //'rule' => array('equalToField',<< field to check >>),
+          ),
         ),
-      ),
-      ```
+        ```
     * passwordCheck: to check if a field is equal to password_field
-      ```php
-      'password_check' => array(
-        'passwordCheck' => array(
-          'rule' => array('passwordCheck', 'password'),
-          //'rule' => array('passwordCheck', << password field >> ),
+        ```php
+        'password_check' => array(
+          'passwordCheck' => array(
+            'rule' => array('passwordCheck', 'password'),
+            //'rule' => array('passwordCheck', << password field >> ),
+          ),
         ),
-      ),
-      ```
+        ```
