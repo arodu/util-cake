@@ -1,7 +1,7 @@
 <?php
-App::uses('AppModel', 'Model');
-class AppExtendModel extends AppModel {
-
+App::uses('Model', 'Model');
+class AppExtendModel extends Model {
+  
   /** Validation dateRange
    *  How to use:
    *  'notFuture' => array(
