@@ -110,6 +110,10 @@ class bsFormHelper extends FormHelper {
       break;
     }
     
+    if($this->isFieldError($fieldName)){
+      $options['div']['class'] = $this->mergeClass($options['div']['class'],'has-error') ;
+    }
+    
     return parent::input($fieldName, $options);
   }
   
