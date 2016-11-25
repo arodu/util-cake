@@ -60,8 +60,9 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
     * dateRange: Min and Max dates
         ```php
         'notFuture' => array(
-          'rule' => array('dateRange',
-           array('min'=>'2010-01-01', 'max'=>'today')),
+          'rule' => array('dateRange', array('min'=>'2010-01-01', 'max'=>'today')),
+          //'rule' => array('dateRange', array('min'=> << min date >>, 'max'=> << max date >> )),
+        ),
         ```
         
     * equalToField: to check if two fields are equals

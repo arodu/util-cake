@@ -15,6 +15,8 @@ class PermitComponent extends Component {
     'userRoot' => false,
     'reload' => false, 
     'errorMessage' => '',
+    
+    'disablePermit' => false,
   );
   
   public $components = array('Auth','Session');
@@ -27,6 +29,10 @@ class PermitComponent extends Component {
     $this->controller->helpers['UtilCake.Permit'] = array('component_settings'=>$this->settings); // <-- Cargar helper UtilCake.Permit
     
     parent::__construct($collection, $this->settings);
+  }
+  
+  public function disablePermit(){
+    return $this->settings['disablePermit'];
   }
   
   public function user($data = null){
@@ -56,6 +62,10 @@ class PermitComponent extends Component {
   }
   
   protected function _authorized($current = null, $set_allow = true){
+    if($this->settings['disablePermit']){
+      return true;
+    }
+    
     if($current == null){
       $current = array(
         'controller'=>$this->controller->params['controller'],

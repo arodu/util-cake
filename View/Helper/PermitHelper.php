@@ -63,6 +63,9 @@ class PermitHelper extends AppHelper {
   }
 
   public function hasPermission($profiles = array()){
+    if($this->component->disablePermit()){
+      return true;
+    }
     $this->userProfile = $this->component->user();
     if(!is_array($profiles)){ $profiles = array($profiles); }
     foreach ($profiles as $profile) {

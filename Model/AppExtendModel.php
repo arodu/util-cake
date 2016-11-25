@@ -2,6 +2,13 @@
 App::uses('Model', 'Model');
 class AppExtendModel extends Model {
   
+  public function hashPassword($password_field = 'password'){
+    if (isset($this->data[$this->alias][$password_field])) {
+      $passwordHasher = new BlowfishPasswordHasher();
+      $this->data[$this->alias][$password_field] = $passwordHasher->hash($this->data[$this->alias][$password_field]);
+    }
+  }
+  
   /** Validation dateRange
    *  How to use:
    *  'notFuture' => array(
@@ -34,8 +41,8 @@ class AppExtendModel extends Model {
   ),
   */
   public function equalToField($check,$otherfield){
-    $field = reset($check);
-    return ($this->data[$this->alias][$field] === $this->data[$this->alias][$otherfield]);
+    $check_value = reset($check);
+    return ($check_value === $this->data[$this->alias][$otherfield]);
   }
 
   /*
@@ -46,10 +53,10 @@ class AppExtendModel extends Model {
   ),
   */
   public function passwordCheck($check, $passwordfield='password'){
-    $field = reset($check);
+    $check_value = reset($check);
     $user = $this->find('first',array('conditions'=>array($this->alias.'.id'=>$this->data[$this->alias]['id'])));
     $blowfish = new BlowfishPasswordHasher();
-    return $blowfish->check($this->data[$this->alias][$field], $user[$this->alias][$passwordfield]);
+    return $blowfish->check($check_value, $user[$this->alias][$passwordfield]);
   }
-
+  
 }
