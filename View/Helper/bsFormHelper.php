@@ -133,7 +133,7 @@ class bsFormHelper extends FormHelper {
   public function static($fieldName, $options){ 
     $options = array_merge($options, array('class'=>'form-control-static'));
     $options = $this->_initInputField($fieldName, $options);
-    $out = $this->Html->tag('p', $options['value'], array('class'=>$options['class']));
+    $out = $this->Html->tag('span', $options['value'], array('class'=>$options['class']));
     if(isset($options['hidden_value']) && $options['hidden_value']){
       $out .= parent::input($fieldName, array('type'=>'hidden', 'value'=>$options['hidden_value']));
     }
