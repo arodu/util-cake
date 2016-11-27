@@ -13,8 +13,10 @@ class PermitComponent extends Component {
     
     'defaultResponse' => false,   // false,  loged,  public
     'userRoot' => false,
-    'reload' => false,
+    'reload' => false, 
     'errorMessage' => '',
+    
+    'disablePermit' => false,
   );
   
   public $components = array('Auth','Session');
@@ -24,9 +26,13 @@ class PermitComponent extends Component {
     $this->controller = $collection->getController();
     $this->settings['userRoot'] = ( Configure::read('debug') > 0 ? true : $this->settings['userRoot'] );
     
-    $this->controller->helpers[] = 'UtilCake.Permit'; // <-- Cargar helper UtilCake.Permit
+    $this->controller->helpers['UtilCake.Permit'] = array('component_settings'=>$this->settings); // <-- Cargar helper UtilCake.Permit
     
     parent::__construct($collection, $this->settings);
+  }
+  
+  public function disablePermit(){
+    return $this->settings['disablePermit'];
   }
   
   public function user($data = null){
@@ -39,7 +45,7 @@ class PermitComponent extends Component {
   }
   
   public function isAuthorized($current = null, $showError = true){
-    $authorized = $this->_authorized($current);
+    $authorized = $this->_authorized($current, $showError);
     if($showError){
       if($this->Auth->user('id')){
         return ( $authorized ? true : $this->error() );
@@ -52,10 +58,14 @@ class PermitComponent extends Component {
   }
   
   public function hasPermission($current = null){
-    return $this->_authorized($current);
+    return $this->_authorized($current, false);
   }
   
-  protected function _authorized($current = null){
+  protected function _authorized($current = null, $set_allow = true){
+    if($this->settings['disablePermit']){
+      return true;
+    }
+    
     if($current == null){
       $current = array(
         'controller'=>$this->controller->params['controller'],
@@ -74,7 +84,9 @@ class PermitComponent extends Component {
     if($actionPermit = $this->getActionPermit($current)){
       if($actionPermit == 'public' or in_array('public', (array)$actionPermit)){
         // El permiso de la accion es "public", y cualquiera tiene acceso
-        $this->controller->Auth->allow($current['action']);
+        if($set_allow){
+          $this->controller->Auth->allow($current['action']);
+        }
         return true;
       }
       

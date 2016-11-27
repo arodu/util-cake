@@ -72,7 +72,7 @@ class GeneralHelper extends AppHelper {
 		return $out;
 	}
 
-	function dateCompare($date, $to_compare = null){
+	public function dateCompare($date, $to_compare = null){
 		$to_compare = date('Ymd',$this->_formatDateTime($to_compare));
 		$date = date('Ymd',$this->_formatDateTime($date));
 		if($date == $to_compare){
@@ -85,6 +85,11 @@ class GeneralHelper extends AppHelper {
 			}
 		}
 	}
+  
+  public function get_age($birthdate){
+    $diff = abs(time() - strtotime($birthdate));
+    return  floor((($diff / 3600) / 24) / 360);
+  }
 
 	/*********************************************************************************************************/
 
