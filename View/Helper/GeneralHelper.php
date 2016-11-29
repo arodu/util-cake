@@ -134,7 +134,7 @@ class GeneralHelper extends AppHelper {
 		return end($name);
 	}
 
-	public function esImagen($fileName){
+	public function isImage($fileName){
 		$type = $this->fileType($fileName);
 		if($type == 'jpg' || $type == 'png' || $type == 'gif' || $type == 'jpej'){
 			return true;
@@ -143,38 +143,58 @@ class GeneralHelper extends AppHelper {
 		}
 	}
 
-	public function iconFileType($fileName){
-		$type = $this->fileType($fileName);
-		$icon = '';
-
-		switch ($type) {
-			case 'doc':
-			case 'docx':
-							$icon = 'fa-file-word-o';
-							break;
-			case 'gif':
-			case 'png':
-			case 'jpg':
-							$icon = 'fa-file-image-o';
-							break;
-			case 'pdf':
-							$icon = 'fa-file-pdf-o';
-							break;
-			case 'odt':
-							$icon = 'fa-file';
-							break;
-			case 'txt':
-							$icon = 'fa-file-text-o';
-							break;
-
-			default:
-							$icon = 'fa-file-o';
-							break;
-		}
-
-		return $icon;
-
-	}
+  public function iconFileType($type){
+    $icon = '';
+    
+    switch ($type) {
+      case 'doc':
+      case 'docx':
+        $icon = 'fa-file-word-o';
+        break;
+      case 'gif':
+        case 'png':
+        case 'jpg':
+        $icon = 'fa-file-image-o';
+        break;
+      case 'application/pdf':
+      case 'pdf':
+        $icon = 'fa-file-pdf-o';
+        break;
+      case 'odt':
+        $icon = 'fa-file';
+        break;
+      case 'txt':
+        $icon = 'fa-file-text-o';
+        break;
+      case 'application/zip':
+      case 'zip':
+      case 'rar':
+      case '7z':
+        $icon = 'fa-file-archive-o';
+        break;
+      case 'text/x-python':
+      case 'application/x-php':
+      case 'php':
+      case 'py':
+      case 'js':
+        $icon = 'fa-file-code-o';
+        break;
+      default:
+        $icon = 'fa-file-o';
+        break;
+    }
+      
+    return $icon;
+  }
+  
+  public function faIcon($text, $options=array()){
+    $out = '<i';
+    $out .= isset($options['id']) ? ' id="'.$options['id'].'"' : '';  // id
+    $out .= ' class="fa '.$text;
+    $out .= isset($options['class']) ? ' '.$options['class'] : '"';
+    $out .= '></i>';
+    return $out;
+  }
 
 	public function soloLetras($texto){
 		$palabras = explode(' ',$texto);
