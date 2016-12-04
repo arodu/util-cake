@@ -93,7 +93,7 @@ class bsFormHelper extends FormHelper {
       break;
       
       case 'select':
-        if(isset($options['multiple']) && ($options['multiple'] == 'checkbox')){
+        if(isset($options['multiple']) && ($options['multiple'] === 'checkbox')){
           $options['class'] = '';
         }
         break;
