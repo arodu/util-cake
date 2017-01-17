@@ -64,11 +64,16 @@ class bsFormHelper extends FormHelper {
   
   protected function fixOptions($options){
     $out = array();
-    if(isset($options['label'])){
+    if(isset($options['label']) && $options['label']){
       if(!is_array($options['label'])){
         $options['label'] = array('text'=>$options['label']);
       }
       $out['label'] = array_merge_recursive($this->_inputDefaults['label'], $options['label']);
+    }
+    
+    if(isset($options['div']) && $options['div']===false){
+      $this->_inputDefaults['between'] = '';
+      $this->_inputDefaults['after'] = '';
     }
     
     return array_merge($options, $out);
