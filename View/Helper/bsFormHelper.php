@@ -101,6 +101,12 @@ class bsFormHelper extends FormHelper {
       case 'radio':
           //debug($options);
         break;
+        
+      case 'static_input':
+      case 'static':
+        return $this->static_input($fieldName, $options){;
+      break;
+        
       
       case 'time':
       case 'date':
@@ -130,7 +136,7 @@ class bsFormHelper extends FormHelper {
     }
   }
   
-  public function static($fieldName, $options){ 
+  public function static_input($fieldName, $options){ 
     $options = array_merge($options, array('class'=>'form-control-static'));
     $options = $this->_initInputField($fieldName, $options);
     $out = $this->Html->tag('span', $options['value'], array('class'=>$options['class']));
