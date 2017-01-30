@@ -88,6 +88,10 @@ class bsFormHelper extends FormHelper {
     $options = $this->fixOptions($options);
     $options = $this->_parseOptions($options);
 
+    if($this->isFieldError($fieldName)){
+      $options['div']['class'] = $this->mergeClass($options['div']['class'],'has-error') ;
+    }
+
     switch ($options['type']) {
       case 'checkbox':
         $options['class'] = '';
@@ -106,6 +110,11 @@ class bsFormHelper extends FormHelper {
       case 'radio':
           //debug($options);
         break;
+        
+      case 'static_input':
+      case 'static':
+          return $this->static_input($fieldName, $options);
+        break;
       
       case 'time':
       case 'date':
@@ -113,10 +122,6 @@ class bsFormHelper extends FormHelper {
         $options['separator'] = '&nbsp;';
         $options['style'] = array('display:inline-block;width:auto;');
       break;
-    }
-    
-    if($this->isFieldError($fieldName)){
-      $options['div']['class'] = $this->mergeClass($options['div']['class'],'has-error') ;
     }
     
     return parent::input($fieldName, $options);
@@ -135,7 +140,7 @@ class bsFormHelper extends FormHelper {
     }
   }
   
-  public function static($fieldName, $options){ 
+  public function static_input($fieldName, $options){ 
     $options = array_merge($options, array('class'=>'form-control-static'));
     $options = $this->_initInputField($fieldName, $options);
     $out = $this->Html->tag('span', $options['value'], array('class'=>$options['class']));
