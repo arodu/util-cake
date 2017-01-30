@@ -113,8 +113,8 @@ class bsFormHelper extends FormHelper {
         
       case 'static_input':
       case 'static':
-          return $this->static_input($fieldName, $options);
-        break;
+        return $this->static_input($fieldName, $options);
+      break;
       
       case 'time':
       case 'date':
@@ -181,7 +181,6 @@ class bsFormHelper extends FormHelper {
     }
     return $checkbox;
   }
-  
   
   protected function _getTextLabel($fieldName, $options){
     if( isset($options['textLabel']) && $options['textLabel'] ){
