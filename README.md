@@ -21,6 +21,26 @@ CakePHP Plugin, collection of utilities for cakephp 2.x
   );
   ```
 
+### SearchComponent
+  * Search Component
+  
+  * How to use
+  ```php
+  // app/Controller/AnyController.php
+  public $components = array('UtilCake.Search');
+  ...
+  public function index() {
+    $this->set('any', $this->Paginator->paginate('Any', $this->Search->getConditions()));
+  }
+  ```
+  ```php
+  // app/View/Any/index.ctp
+  echo $this->Search->create();
+    echo $this->Search->input(array('id','name','last'), array('type'=>'search','autoSubmit'=>true));
+  echo $this->Search->end();
+  ```
+
+
 ### SoftDeleteBehavior
 
 ### MysqlBackup
