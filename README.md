@@ -1,4 +1,6 @@
+
 # UtilCake plugin for CakePHP
+CakePHP Plugin, collection of utilities for cakephp 3.x
 
 ## Installation
 
@@ -7,5 +9,5 @@ You can install this plugin into your CakePHP application using [composer](https
 The recommended way to install composer packages is:
 
 ```
-composer require your-name-here/UtilCake
+composer require arodu/UtilCake
 ```
