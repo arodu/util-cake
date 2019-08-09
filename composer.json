@@ -1,5 +1,5 @@
 {
-    "name": "arodu/UtilCake",
+    "name": "arodu/util-cake",
     "description": "CakePHP Plugin, collection of utilities for cakephp 3.x",
     "type": "cakephp-plugin",
     "license": "MIT",
