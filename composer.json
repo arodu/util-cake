@@ -1,0 +1,30 @@
+{
+    "name": "arodu/util-cake",
+    "description": "CakePHP Plugin, collection of utilities for cakephp 3.x",
+    "type": "cakephp-plugin",
+    "keywords": ["cakephp", "util-cake", "permit"],
+    "homepage": "https://github.com/arodu/util-cake",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alberto G. Rodriguez U. <arodu.dev@gmail.com>",
+            "homepage": "https://github.com/arodu"
+        }
+    ],
+    "require": {
+        "cakephp/cakephp": "^3.5"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "UtilCake\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "UtilCake\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    }
+}
