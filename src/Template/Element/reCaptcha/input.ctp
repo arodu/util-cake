@@ -1,0 +1,1 @@
+<?= $this->Form->control( $google_recaptcha['input_name'], ['type' => 'hidden', 'id' => $google_recaptcha['input_name']] ) ?>
