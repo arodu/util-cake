@@ -32,6 +32,10 @@ class Permit{
     $this->setConfig($config);
     Configure::load($this->getConfig('config_file'), 'default');
     $this->_permitList = Configure::read($this->getConfig('config_name'));
+    $this->setUser($user);
+  }
+
+  public function setUser($user){
     $this->_user = $user;
   }
 

@@ -41,7 +41,10 @@ class PermitComponent extends Component{
     $this->_permit = Permit::getInstance($config, $this->getIdentity() );
   }
 
-  public function isAuthorize(){
+  public function isAuthorize($user = null){
+    if(!empty($user)){
+      $this->_permit->setUser($user);
+    }
     if( !empty($this->_permit->getUser()) ){
       $role_code = ( !empty($this->_permit->getUser('role')) ? $this->_permit->getUser('role') : 'logged' );
     }else{
